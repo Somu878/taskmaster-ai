@@ -20,8 +20,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       const rawData = await req.text();
       const base64Data = addPadding(rawData);
       const decodedData = Buffer.from(base64Data, "base64").toString("utf8");
-      console.log("Decoded Data:", decodedData);
-      // Process the decoded data here...
       return NextResponse.json({ message: "Webhook processed successfully" });
     } catch (error) {
       console.error("Failed to process webhook:", error);
