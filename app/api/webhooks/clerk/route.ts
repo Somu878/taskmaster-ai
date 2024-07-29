@@ -28,17 +28,10 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
-
-  // Get the body
   const payload = await req.json();
   const body = JSON.stringify(payload);
-
-  // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
-
   let evt: WebhookEvent;
-
-  // Verify the payload with the headers
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -51,13 +44,10 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
-
-  const { id, email_addresses, ...attr }: any = evt.data;
   const eventType = evt.type;
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name, username } =
       evt.data;
-
     const user: CreateUserParams = {
       clerkId: id,
       email: email_addresses[0].email_address,
@@ -65,9 +55,7 @@ export async function POST(req: Request) {
       firstName: JSON.stringify(first_name),
       lastName: JSON.stringify(last_name),
       photo: image_url,
-      password: "",
     };
-
     try {
       const newUser = await createUser(user);
       if (newUser) {
@@ -77,7 +65,6 @@ export async function POST(req: Request) {
           },
         });
       }
-
       return NextResponse.json({ message: "OK", user: newUser });
     } catch (error) {
       console.error("Error creating user:", error);
@@ -86,6 +73,5 @@ export async function POST(req: Request) {
       });
     }
   }
-
   return new Response("", { status: 200 });
 }

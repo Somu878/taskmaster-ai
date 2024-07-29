@@ -5,7 +5,6 @@ declare type CreateUserParams = {
   firstName: string;
   lastName: string;
   photo: string;
-  password: string;
 };
 
 declare type UpdateUserParams = {
