@@ -11,9 +11,21 @@ model User {
    id        Int      @id @default(autoincrement())
   clerkId    String  @unique
   photo      String  
-  username  String   @unique @db.VarChar(255)
-  firstName String   @db.VarChar(255)
-  lastName  String   @db.VarChar(255)
+  username  String   @unique 
+  firstName String   
+  lastName  String   
   email      String  @unique
+  cards       Card[]
+   @@index([id])
+}
+model Card{
+  id        Int      @id @default(autoincrement())
+  authorId  Int      
+  title     String   
+  status    String
+  priority  String
+  description String
+  deadline    String
+  user    User @relation( fields: [authorId],references: [id])
    @@index([id])
 }
