@@ -2,8 +2,9 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
-import { createUser } from "@/lib/actions/user.action";
+import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 import { NextResponse } from "next/server";
+import { handleError } from "@/lib/utils";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
+  const { id } = evt.data;
   const eventType = evt.type;
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name, username } =
@@ -52,13 +54,6 @@ export async function POST(req: Request) {
     };
     try {
       const newUser = await createUser(user);
-      if (newUser) {
-        await clerkClient.users.updateUserMetadata(id, {
-          publicMetadata: {
-            userId: newUser.id,
-          },
-        });
-      }
       return NextResponse.json({ message: "OK", user: newUser });
     } catch (error) {
       console.error("Error creating user:", error);
@@ -67,5 +62,38 @@ export async function POST(req: Request) {
       });
     }
   }
+  // UPDATE
+  if (eventType === "user.updated") {
+    try {
+      const { email_addresses, image_url, first_name, last_name, username } =
+        evt.data;
+
+      const user = {
+        email: email_addresses[0].email_address,
+        firstName: first_name!,
+        lastName: last_name!,
+        username: username!,
+        photo: image_url!,
+      };
+
+      const updatedUser = await updateUser(user);
+
+      return NextResponse.json({ message: "OK", user: updatedUser });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  // DELETE
+  if (eventType === "user.deleted") {
+    try {
+      const deletedUser = await deleteUser(id!);
+
+      return NextResponse.json({ message: "OK", user: deletedUser });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
   return new Response("", { status: 200 });
 }
