@@ -34,7 +34,7 @@ export async function deleteUser(id: any) {
   try {
     const deleteUser = await prisma.user.delete({
       where: {
-        id: id,
+        clerkId: id,
       },
     });
     if (!deleteUser) {
