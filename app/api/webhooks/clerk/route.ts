@@ -52,10 +52,20 @@ export async function POST(req: Request) {
 
   // Do something with the payload
   // For this guide, you simply log the payload to the console
-  const { id } = evt.data;
+  const { id, email_addresses, ...attr }: any = evt.data;
   const eventType = evt.type;
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  console.log("Webhook body:", body);
+  if (eventType === "user.created") {
+    const email = email_addresses[0].email_address;
+
+    // const user = new User({
+    //   clerkUserId: id,
+    //   email,
+    // });
+
+    // await user.save();
+
+    console.log("User Saved", email);
+  }
 
   return new Response("", { status: 200 });
 }
