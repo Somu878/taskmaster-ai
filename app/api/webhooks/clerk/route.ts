@@ -1,50 +1,60 @@
-import { NextRequest, NextResponse } from "next/server";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { Webhook } from "svix";
+import { headers } from "next/headers";
+import { WebhookEvent } from "@clerk/nextjs/server";
 
-// Helper function to add padding to a Base64 string
-function addPadding(base64: string): string {
-  while (base64.length % 4 !== 0) {
-    base64 += "=";
-  }
-  return base64;
-}
+export async function POST(req: Request) {
+  // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
+  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
-const isPublicRoute = createRouteMatcher(["/api/webhooks(.*)"]);
-
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  if (isPublicRoute(req)) {
-    return NextResponse.next(); // Skip auth protection for public routes
+  if (!WEBHOOK_SECRET) {
+    throw new Error(
+      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+    );
   }
 
+  // Get the headers
+  const headerPayload = headers();
+
+  const svix_id = headerPayload.get("svix-id");
+  const svix_timestamp = headerPayload.get("svix-timestamp");
+  const svix_signature = headerPayload.get("svix-signature");
+
+  // If there are no headers, error out
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response("Error occured -- no svix headers", {
+      status: 400,
+    });
+  }
+
+  // Get the body
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
+
+  // Create a new Svix instance with your secret.
+  const wh = new Webhook(WEBHOOK_SECRET);
+
+  let evt: WebhookEvent;
+
+  // Verify the payload with the headers
   try {
-    auth().protect();
-  } catch (error) {
-    console.error("Authentication error:", error);
-    return new NextResponse("Unauthorized", { status: 401 });
+    evt = wh.verify(body, {
+      "svix-id": svix_id,
+      "svix-timestamp": svix_timestamp,
+      "svix-signature": svix_signature,
+    }) as WebhookEvent;
+  } catch (err) {
+    console.error("Error verifying webhook:", err);
+    return new Response("Error occured", {
+      status: 400,
+    });
   }
 
-  if (req.method === "POST" && req.url.includes("/api/webhooks/clerk")) {
-    try {
-      const rawData = await req.text();
-      const base64Data = addPadding(rawData);
-      const decodedData = Buffer.from(base64Data, "base64").toString("utf8");
-      console.log("Decoded Data:", decodedData);
-      // Process the decoded data here...
-      return NextResponse.json({ message: "Webhook processed successfully" });
-    } catch (error) {
-      console.error("Failed to process webhook:", error);
-      return new NextResponse("Bad Request", { status: 400 });
-    }
-  }
+  // Do something with the payload
+  // For this guide, you simply log the payload to the console
+  const { id } = evt.data;
+  const eventType = evt.type;
+  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
+  console.log("Webhook body:", body);
 
-  return NextResponse.next();
-});
-
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
-};
+  return new Response("", { status: 200 });
+}
