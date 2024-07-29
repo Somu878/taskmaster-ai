@@ -1,7 +1,7 @@
 "use server";
 import { handleError } from "./../utils";
 import prisma from "@/_db";
-export async function createUser(user: CreateUserParams) {
+export async function createUser(user: any) {
   try {
     const newUser = await prisma.user.create({ data: user });
     return JSON.parse(JSON.stringify(newUser));
