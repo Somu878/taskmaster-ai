@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import {
   SignedIn,
   SignedOut,
@@ -6,18 +6,19 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function Home() {
-  const { user } = useUser();
+  // const { user } = useUser();
 
-  const username = user?.username || "User";
+  // const username = user?.firstName || "User";
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>
+      {/* <div>
         {" "}
         <UserButton />
         Hello! {username}
-      </div>
+      </div> */}
       {/* <div>
         <SignedOut>
           <SignInButton />
