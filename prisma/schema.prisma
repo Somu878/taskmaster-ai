@@ -14,11 +14,10 @@ datasource db {
 }
 model User {
   clerkId    String  @unique @id 
-  username   String   @unique
   photo      String  
-  firstname String
-  lastname String
-  password   String
+  username  String   @unique @db.VarChar(255)
+  firstName String   @db.VarChar(255)
+  lastName  String   @db.VarChar(255)
   email      String  @unique
    @@index([clerkId])
 }
