@@ -14,3 +14,20 @@ declare type UpdateUserParams = {
   username?: string;
   photo?: string;
 };
+
+declare type CreateCardParams = {
+  title: string;
+  status: string;
+  priority: string;
+  description: string;
+  deadline: string;
+  createdAt: string;
+};
+// declare type UpdateCardParams = {
+//   title: string;
+//   status: string;
+//   priority: string;
+//   description: string;
+//   deadline: string;
+//   createdAt: string;
+// };

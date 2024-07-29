@@ -30,11 +30,11 @@ export async function updateUser(user: UpdateUserParams) {
 }
 // DELETE
 
-export async function deleteUser(id: string) {
+export async function deleteUser(id: any) {
   try {
     const deleteUser = await prisma.user.delete({
       where: {
-        clerkId: id,
+        id: id,
       },
     });
     if (!deleteUser) {

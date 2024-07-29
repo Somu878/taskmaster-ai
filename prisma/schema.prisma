@@ -26,6 +26,7 @@ model Card{
   priority  String
   description String
   deadline    String
+  createdAt    String
   user    User @relation( fields: [authorId],references: [id])
    @@index([id])
 }
