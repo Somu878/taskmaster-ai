@@ -13,7 +13,7 @@ export default function Home() {
 
   // const username = user?.firstName || "User";
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex  flex-col items-center justify-between p-24">
       {/* <div>
         {" "}
         <UserButton />

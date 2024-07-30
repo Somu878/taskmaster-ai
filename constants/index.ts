@@ -25,3 +25,17 @@ export const navLinks = [
     icon: "/assets/analytics.svg",
   },
 ];
+export const menuItems = [
+  {
+    label: "bell",
+    icon: "/assets/bell.svg",
+  },
+  {
+    label: "light",
+    icon: "/assets/bulb.svg",
+  },
+  {
+    label: "arrow",
+    icon: "/assets/arr.svg",
+  },
+];
